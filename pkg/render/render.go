@@ -6,26 +6,35 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"github.com/crislainesc/bookings/pkg/config"
 )
+
+var app *config.AppConfig
+
+func NewTemplates(appConfig *config.AppConfig) {
+	app = appConfig
+}
 
 // RenderTemplate renders a template using html/template
 func RenderTemplate(w http.ResponseWriter, tmpl string) {
-	// create template cache
-	tcache, err := createTemplateCache()
-	if err != nil {
-		log.Fatal(err)
+	var tcache map[string]*template.Template
+	if app.UseCache {
+		tcache = app.TemplateCache
+	} else {
+		tcache, _ = CreateTemplateCache()
 	}
 
 	// get requested template from cache
 	t, ok := tcache[tmpl]
 
 	if !ok {
-		log.Fatal(err)
+		log.Fatal("could not get template from template cache")
 	}
 
 	buf := new(bytes.Buffer)
 
-	err = t.Execute(buf, nil)
+	err := t.Execute(buf, nil)
 
 	if err != nil {
 		log.Println(err)
@@ -64,7 +73,7 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 // 	}
 // }
 
-func createTemplateCache() (map[string]*template.Template, error) {
+func CreateTemplateCache() (map[string]*template.Template, error) {
 	myCache := map[string]*template.Template{}
 	// get all of the files named *.page.tmpl.html from ./templates
 	pages, err := filepath.Glob("./templates/*.page.tmpl.html")
