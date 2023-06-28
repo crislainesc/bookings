@@ -14,15 +14,12 @@ const portNumber = ":8080"
 
 // main is the main function
 func main() {
-	app := config.AppConfig{}
-
 	tcache, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("cannot create template cache")
 	}
 
-	app.TemplateCache = tcache
-	app.UseCache = false
+	app := config.AppConfig{TemplateCache: tcache, UseCache: false}
 
 	repository := handlers.NewRepository(&app)
 	handlers.NewHandlers(repository)

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/crislainesc/bookings/pkg/config"
+	"github.com/crislainesc/bookings/pkg/models"
 	"github.com/crislainesc/bookings/pkg/render"
 )
 
@@ -25,10 +26,13 @@ func NewHandlers(repo *Repository) {
 
 // Home is the handler for the home page
 func (repository *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(w, "home.page.tmpl.html")
+	render.RenderTemplate(w, "home.page.tmpl.html", &models.TemplateData{})
 }
 
 // About is the handler for the about page
 func (repository *Repository) About(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(w, "about.page.tmpl.html")
+	stringMap := map[string]string{
+		"test": "Hello world",
+	}
+	render.RenderTemplate(w, "about.page.tmpl.html", &models.TemplateData{StringMap: stringMap})
 }
