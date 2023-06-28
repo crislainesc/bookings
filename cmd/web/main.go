@@ -30,10 +30,10 @@ func main() {
 		Handler: routes(&app),
 	}
 
+	fmt.Printf("Starting application on port %s", portNumber)
 	err = server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Staring application on port %s", portNumber)
 
 }
