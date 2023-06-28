@@ -4,22 +4,44 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/crislainesc/bookings/pkg/config"
 	"github.com/crislainesc/bookings/pkg/handlers"
 	"github.com/crislainesc/bookings/pkg/render"
 )
 
-const portNumber = ":8080"
+const (
+	portNumber = ":8080"
+)
+
+var (
+	app     config.AppConfig
+	session *scs.SessionManager
+)
 
 // main is the main function
 func main() {
+
+	// change this to true when in production
+	app.InProduction = false
+
+	session = scs.New()
+	session.Lifetime = 24 * time.Hour
+	session.Cookie.Persist = true
+	session.Cookie.SameSite = http.SameSiteLaxMode
+	session.Cookie.Secure = app.InProduction
+
+	app.Session = session
+
 	tcache, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("cannot create template cache")
 	}
 
-	app := config.AppConfig{TemplateCache: tcache, UseCache: false}
+	app.TemplateCache = tcache
+	app.UseCache = false
 
 	repository := handlers.NewRepository(&app)
 	handlers.NewHandlers(repository)
