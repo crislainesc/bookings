@@ -25,10 +25,15 @@ func main() {
 	handlers.NewHandlers(repository)
 
 	render.NewTemplates(&app)
+	server := &http.Server{
+		Addr:    portNumber,
+		Handler: routes(&app),
+	}
 
-	http.HandleFunc("/", handlers.Repo.Home)
-	http.HandleFunc("/about", handlers.Repo.About)
-
+	err = server.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Staring application on port %s", portNumber)
-	_ = http.ListenAndServe(portNumber, nil)
+
 }
