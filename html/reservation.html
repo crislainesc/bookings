@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
     integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous" />
 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.3/dist/css/datepicker.min.css" />
+
   <style>
     .my-footer {
       height: 5em;
@@ -64,27 +66,22 @@
         <h1 class="mt-5 text-center">Search for Availability</h1>
 
         <form action="reservation.html" method="get" class="needs-validation container-fluid text-center" novalidate>
-          <div class="form-row">
+          <div class="form-row mt-4" id="reservation-dates">
             <div class="col form-group mb-3">
-              <label for="start_date" class="form-label">Starting Date</label>
-              <input type="date" required class="form-control" id="start_date" name="start_date"
-                aria-describedby="startDateHelp" />
-              <div id="startDateHelp" class="form-text">
-                Enter your starting date.
-              </div>
+              <input type="text" required class="form-control" id="start" name="start" aria-describedby="startDateHelp"
+                placeholder="Arrival" />
             </div>
-
             <div class="col form-group mb-3">
-              <label for="end_date" class="form-label">Ending Date</label>
-              <input type="date" required class="form-control" id="end_date" name="end_date"
-                aria-describedby="endDateHelp" />
-              <div id="endDateHelp" class="form-text">
-                Enter your ending date.
-              </div>
+              <input type="text" required class="form-control" id="end" name="end" aria-describedby="endDateHelp"
+                placeholder="Departure" />
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary">Search Availability</button>
+          <hr>
+
+          <button type="submit" class="btn btn-primary">
+            Search Availability
+          </button>
         </form>
       </div>
     </div>
@@ -107,24 +104,34 @@
     integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
     crossorigin="anonymous"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.3/dist/js/datepicker-full.min.js"></script>
 
   <script>
-    (() => {
+    ; (() => {
       'use strict'
 
       // Fetch all the forms we want to apply custom Bootstrap validation styles to
       const forms = document.querySelectorAll('.needs-validation')
 
       // Loop over them and prevent submission
-      Array.from(forms).forEach(form => {
-        form.addEventListener('submit', event => {
-          if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-          }
+      Array.from(forms).forEach((form) => {
+        form.addEventListener(
+          'submit',
+          (event) => {
+            if (!form.checkValidity()) {
+              event.preventDefault()
+              event.stopPropagation()
+            }
 
-          form.classList.add('was-validated')
-        }, false)
+            form.classList.add('was-validated')
+          },
+          false
+        )
+      })
+
+      const elem = document.getElementById('reservation-dates')
+      const rangepicker = new DateRangePicker(elem, {
+        format: "yyyy-mm-dd"
       })
     })()
   </script>
