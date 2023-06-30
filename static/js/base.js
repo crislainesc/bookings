@@ -94,7 +94,6 @@ function Prompt() {
       showCancelButton: true,
       willOpen: () => {
         const elem = document.getElementById('reservation-dates-modal')
-        console.log(elem)
         new DateRangePicker(elem, {
           format: 'yyyy-mm-dd',
           showOnFocus: true,
