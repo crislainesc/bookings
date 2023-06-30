@@ -21,11 +21,6 @@ let attention = Prompt()
       false
     )
   })
-
-  const elem = document.getElementById('reservation-dates')
-  new DateRangePicker(elem, {
-    format: 'yyyy-mm-dd',
-  })
 })()
 
 function notify(msg, type) {
@@ -97,10 +92,22 @@ function Prompt() {
       backdrop: false,
       focusConfirm: false,
       showCancelButton: true,
+      willOpen: () => {
+        const elem = document.getElementById('reservation-dates-modal')
+        console.log(elem)
+        new DateRangePicker(elem, {
+          format: 'yyyy-mm-dd',
+          showOnFocus: true,
+        })
+      },
+      didOpen: () => {
+        document.getElementById('start').removeAttribute('disabled')
+        document.getElementById('end').removeAttribute('disabled')
+      },
       preConfirm: () => {
         return [
-          document.getElementById('swal-input1').value,
-          document.getElementById('swal-input2').value,
+          document.getElementById('start').value,
+          document.getElementById('end').value,
         ]
       },
     })

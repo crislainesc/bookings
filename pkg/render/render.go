@@ -60,7 +60,7 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 	templatesDir := os.Getenv("TEMPLATES_DIR")
 
 	if templatesDir == "" {
-		templatesDir = "../../templates/"
+		templatesDir = "./templates/"
 	}
 
 	myCache := map[string]*template.Template{}
