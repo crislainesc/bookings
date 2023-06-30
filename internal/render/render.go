@@ -9,8 +9,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/crislainesc/bookings/pkg/config"
-	"github.com/crislainesc/bookings/pkg/models"
+	"github.com/crislainesc/bookings/internal/config"
+	"github.com/crislainesc/bookings/internal/models"
 	"github.com/justinas/nosurf"
 )
 

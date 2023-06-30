@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/crislainesc/bookings/pkg/config"
-	"github.com/crislainesc/bookings/pkg/models"
-	"github.com/crislainesc/bookings/pkg/render"
+	"github.com/crislainesc/bookings/internal/config"
+	"github.com/crislainesc/bookings/internal/models"
+	"github.com/crislainesc/bookings/internal/render"
 )
 
 var Repo *Repository
