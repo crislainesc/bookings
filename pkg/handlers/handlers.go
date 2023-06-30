@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -13,6 +14,11 @@ var Repo *Repository
 
 type Repository struct {
 	App *config.AppConfig
+}
+
+type JsonResponse struct {
+	OK      bool   `json:"ok"`
+	Message string `json:"message"`
 }
 
 func NewRepository(app *config.AppConfig) *Repository {
@@ -71,6 +77,22 @@ func (repository *Repository) PostAvailability(w http.ResponseWriter, r *http.Re
 	result := fmt.Sprintf("start date is %s and end date is %s", start, end)
 
 	w.Write([]byte(result))
+}
+
+// AvailabilityJSON is the handler for the search availability
+func (repository *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
+	resp := JsonResponse{
+		OK:      true,
+		Message: "Available!",
+	}
+
+	out, err := json.MarshalIndent(resp, "", " ")
+	if err != nil {
+		println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
 }
 
 // Contact is the handler for the contact page
