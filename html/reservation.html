@@ -15,16 +15,7 @@
 
   <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css" />
 
-  <style>
-    .my-footer {
-      height: 5em;
-      background-color: #163b65;
-      margin-top: 1.5em;
-      padding: 1em;
-      color: #ffffff;
-      font-size: 80%;
-    }
-  </style>
+  <link rel="stylesheet" type="text/css" href="static/css/styles.css" />
 </head>
 
 <body>
@@ -112,52 +103,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <script>
-    ; (() => {
-      'use strict'
-
-      // Fetch all the forms we want to apply custom Bootstrap validation styles to
-      const forms = document.querySelectorAll('.needs-validation')
-
-      // Loop over them and prevent submission
-      Array.from(forms).forEach((form) => {
-        form.addEventListener(
-          'submit',
-          (event) => {
-            if (!form.checkValidity()) {
-              event.preventDefault()
-              event.stopPropagation()
-            }
-
-            form.classList.add('was-validated')
-          },
-          false
-        )
-      })
-
-      const elem = document.getElementById('reservation-dates')
-      const rangepicker = new DateRangePicker(elem, {
-        format: 'yyyy-mm-dd',
-      })
-    })()
-
-    function notify(msg, type) {
-      notie.alert({
-        type: type,
-        text: msg,
-      })
-    }
-
-    function notifyModal({ icon, title, text, confirmationButton, ...rest }) {
-      Swal.fire({
-        icon,
-        title,
-        text,
-        confirmationButton,
-        ...rest
-      })
-    }
-  </script>
+  <script src="static/js/script.js"></script>
 </body>
 
 </html>
