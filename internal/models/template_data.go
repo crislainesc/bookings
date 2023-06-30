@@ -1,5 +1,8 @@
 package models
 
+import "github.com/crislainesc/bookings/internal/forms"
+
+// TemplateData holds data sent from handlers to templates
 type TemplateData struct {
 	StringMap map[string]string
 	IntMap    map[string]int
@@ -9,4 +12,5 @@ type TemplateData struct {
 	Flash     string
 	Warning   string
 	Error     string
+	Form      *forms.Form
 }
