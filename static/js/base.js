@@ -86,22 +86,17 @@ function Prompt() {
   async function custom(c) {
     const { msg = '', title = '' } = c
 
-    const { value: formValues } = await Swal.fire({
+    const { value: result } = await Swal.fire({
       title: title,
       html: msg,
       backdrop: false,
       focusConfirm: false,
       showCancelButton: true,
       willOpen: () => {
-        const elem = document.getElementById('reservation-dates-modal')
-        new DateRangePicker(elem, {
-          format: 'yyyy-mm-dd',
-          showOnFocus: true,
-        })
+        if (c.willOpen) c.willOpen()
       },
       didOpen: () => {
-        document.getElementById('start').removeAttribute('disabled')
-        document.getElementById('end').removeAttribute('disabled')
+        if (c.didOpen) c.didOpen()
       },
       preConfirm: () => {
         return [
@@ -111,8 +106,18 @@ function Prompt() {
       },
     })
 
-    if (formValues) {
-      Swal.fire(JSON.stringify(formValues))
+    if (!!result) {
+      if (!Swal.DismissReason.cancel) {
+        if (!!result.value) {
+          if (!!c.callback) {
+            c.callback(result)
+          }
+        } else {
+          c.callback(false)
+        }
+      } else {
+        c.callback(false)
+      }
     }
   }
 
