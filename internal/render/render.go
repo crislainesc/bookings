@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"path/filepath"
 
 	"github.com/crislainesc/bookings/internal/config"
@@ -17,6 +16,7 @@ import (
 var functions = template.FuncMap{}
 
 var app *config.AppConfig
+var templatesPath = "../../templates/"
 
 // NewTemplates sets the config for the template package
 func NewTemplates(appConfig *config.AppConfig) {
@@ -62,15 +62,9 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmpl string, td *mod
 
 // CreateTemplateCache creates a template cache as a map
 func CreateTemplateCache() (map[string]*template.Template, error) {
-	templatesDir := os.Getenv("TEMPLATES_DIR")
-
-	if templatesDir == "" {
-		templatesDir = "../../templates/"
-	}
-
 	myCache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob(templatesDir + "*.page.tmpl.html")
+	pages, err := filepath.Glob(templatesPath + "*.page.tmpl.html")
 	if err != nil {
 		return myCache, err
 	}
@@ -82,13 +76,13 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 			return myCache, err
 		}
 
-		matches, err := filepath.Glob(templatesDir + "*.layout.tmpl.html")
+		matches, err := filepath.Glob(templatesPath + "*.layout.tmpl.html")
 		if err != nil {
 			return myCache, err
 		}
 
 		if len(matches) > 0 {
-			ts, err = ts.ParseGlob(templatesDir + "*.layout.tmpl.html")
+			ts, err = ts.ParseGlob(templatesPath + "*.layout.tmpl.html")
 			if err != nil {
 				return myCache, err
 			}
