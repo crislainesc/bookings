@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/crislainesc/bookings/internal/config"
 	"github.com/crislainesc/bookings/internal/handlers"
+	"github.com/crislainesc/bookings/internal/models"
 	"github.com/crislainesc/bookings/internal/render"
 )
 
@@ -23,6 +25,7 @@ var (
 
 // main is the main function
 func main() {
+	gob.Register(models.Reservation{})
 
 	// change this to true when in production
 	app.InProduction = false
