@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
@@ -19,8 +20,10 @@ const (
 )
 
 var (
-	app     config.AppConfig
-	session *scs.SessionManager
+	app      config.AppConfig
+	session  *scs.SessionManager
+	infoLog  *log.Logger
+	errorLog *log.Logger
 )
 
 // main is the main function
@@ -50,6 +53,12 @@ func run() error {
 
 	// change this to true when in production
 	app.InProduction = false
+
+	infoLog = log.New(os.Stdout, "[INFO]\t", log.Ldate|log.Ltime)
+	app.InfoLog = infoLog
+
+	errorLog = log.New(os.Stdout, "[ERROR]\t", log.Ldate|log.Ltime|log.Lshortfile)
+	app.ErrorLog = errorLog
 
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
