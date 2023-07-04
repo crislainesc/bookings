@@ -12,6 +12,7 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/crislainesc/bookings/internal/config"
+	"github.com/crislainesc/bookings/internal/driver"
 	"github.com/crislainesc/bookings/internal/models"
 	"github.com/crislainesc/bookings/internal/render"
 	"github.com/go-chi/chi"
@@ -54,7 +55,13 @@ func getRoutes() http.Handler {
 	app.TemplateCache = tc
 	app.UseCache = true
 
-	repo := NewRepository(&app)
+	log.Println("Connecting to database...")
+	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=bookings user=postgres password=root")
+	if err != nil {
+		log.Fatal("Cannot connect to database! Dying...")
+	}
+
+	repo := NewRepository(&app, db)
 	NewHandlers(repo)
 
 	render.NewTemplates(&app)

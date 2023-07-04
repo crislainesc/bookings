@@ -6,16 +6,20 @@ import (
 	"net/http"
 
 	"github.com/crislainesc/bookings/internal/config"
+	"github.com/crislainesc/bookings/internal/driver"
 	"github.com/crislainesc/bookings/internal/forms"
 	"github.com/crislainesc/bookings/internal/helpers"
 	"github.com/crislainesc/bookings/internal/models"
 	"github.com/crislainesc/bookings/internal/render"
+	"github.com/crislainesc/bookings/internal/repository"
+	"github.com/crislainesc/bookings/internal/repository/dbrepo"
 )
 
 var Repo *Repository
 
 type Repository struct {
 	App *config.AppConfig
+	DB  repository.DatabaseRepo
 }
 
 type JsonResponse struct {
@@ -23,9 +27,10 @@ type JsonResponse struct {
 	Message string `json:"message"`
 }
 
-func NewRepository(app *config.AppConfig) *Repository {
+func NewRepository(app *config.AppConfig, db *driver.Database) *Repository {
 	return &Repository{
 		App: app,
+		DB:  dbrepo.NewPostgresRepo(db.SQL, app),
 	}
 }
 
