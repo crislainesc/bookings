@@ -16,8 +16,12 @@ func (repository *postgresDBRepo) InsertReservation(reservation models.Reservati
 
 	defer cancel()
 
-	query := `INSERT INTO reservations (first_name, last_name, email, phone, start_date, end_date,
-		room_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id`
+	query := `
+		INSERT INTO 
+			reservations (first_name, last_name, email, phone, start_date, end_date, room_id, created_at, updated_at) 
+		VALUES 
+			($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id
+	`
 
 	var newID int
 
@@ -45,9 +49,12 @@ func (repository *postgresDBRepo) InsertRoomRestriction(restriction models.RoomR
 
 	defer cancel()
 
-	query := `INSERT INTO room_restrictions (start_date, end_date, room_id, reservation_id, 
-	created_at, updated_at, restriction_id) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	query := `
+		INSERT INTO 
+			room_restrictions (start_date, end_date, room_id, reservation_id, created_at, updated_at, restriction_id) 
+		VALUES 
+			($1, $2, $3, $4, $5, $6, $7)
+	`
 
 	_, err := repository.DB.ExecContext(context, query,
 		restriction.StartDate,
@@ -64,4 +71,31 @@ func (repository *postgresDBRepo) InsertRoomRestriction(restriction models.RoomR
 	}
 
 	return nil
+}
+
+func (repository *postgresDBRepo) SearchAvailabilityByDatesByRoomID(start, end time.Time, roomID int) (bool, error) {
+	context, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	defer cancel()
+
+	query := `
+		SELECT 
+			count(id)
+		FROM
+		  room_restrictions
+		WHERE
+			room_id = $1 AND
+		  $2 < end_date AND $3 > start_date
+	`
+
+	var numRows int
+
+	row := repository.DB.QueryRowContext(context, query, roomID, start, end)
+	err := row.Scan(&numRows)
+
+	if err != nil {
+		return false, err
+	}
+
+	return numRows == 0, nil
 }
