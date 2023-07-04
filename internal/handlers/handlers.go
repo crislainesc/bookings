@@ -73,6 +73,8 @@ func (repository *Repository) Reservation(w http.ResponseWriter, r *http.Request
 
 	reservation.Room.RoomName = room.RoomName
 
+	repository.App.Session.Put(r.Context(), "reservation", reservation)
+
 	data := make(map[string]interface{})
 	data["reservation"] = reservation
 
@@ -92,6 +94,13 @@ func (repository *Repository) Reservation(w http.ResponseWriter, r *http.Request
 
 // PostReservation handles the posting of a reservation form
 func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
+	reservation, ok := repository.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+
+	if !ok {
+		helpers.ServerError(w, errors.New("type assertion to string failed"))
+		return
+	}
+
 	err := r.ParseForm()
 	if err != nil {
 		helpers.ServerError(w, err)
@@ -115,15 +124,13 @@ func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Req
 		helpers.ServerError(w, err)
 	}
 
-	reservation := models.Reservation{
-		FirstName: r.Form.Get("first_name"),
-		LastName:  r.Form.Get("last_name"),
-		Email:     r.Form.Get("email"),
-		Phone:     r.Form.Get("phone"),
-		StartDate: startDate,
-		EndDate:   endDate,
-		RoomID:    roomID,
-	}
+	reservation.FirstName = r.Form.Get("first_name")
+	reservation.LastName = r.Form.Get("last_name")
+	reservation.Email = r.Form.Get("email")
+	reservation.Phone = r.Form.Get("phone")
+	reservation.StartDate = startDate
+	reservation.EndDate = endDate
+	reservation.RoomID = roomID
 
 	form := forms.New(r.PostForm)
 
@@ -145,6 +152,8 @@ func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		helpers.ServerError(w, err)
 	}
+
+	repository.App.Session.Put(r.Context(), "reservation", reservation)
 
 	restriction := models.RoomRestriction{
 		StartDate:     startDate,
@@ -258,8 +267,16 @@ func (repository *Repository) ReservationSummary(w http.ResponseWriter, r *http.
 	data := make(map[string]interface{})
 	data["reservation"] = reservation
 
+	sd := reservation.StartDate.Format("2006-01-02")
+	ed := reservation.EndDate.Format("2006-01-02")
+
+	stringMap := make(map[string]string)
+	stringMap["start_date"] = sd
+	stringMap["end_date"] = ed
+
 	render.Template(w, r, "reservation-summary.page.tmpl.html", &models.TemplateData{
-		Data: data,
+		Data:      data,
+		StringMap: stringMap,
 	})
 }
 
