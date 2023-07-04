@@ -21,6 +21,7 @@ require (
 	github.com/fatih/color v1.14.1 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/go-chi/chi/v5 v5.0.8 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/gobuffalo/attrs v1.0.3 // indirect
 	github.com/gobuffalo/envy v1.10.2 // indirect
