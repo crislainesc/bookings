@@ -14,6 +14,8 @@ import (
 	"github.com/crislainesc/bookings/internal/render"
 	"github.com/crislainesc/bookings/internal/repository"
 	"github.com/crislainesc/bookings/internal/repository/dbrepo"
+	"github.com/go-chi/chi"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -235,4 +237,24 @@ func (repository *Repository) ReservationSummary(w http.ResponseWriter, r *http.
 	render.Template(w, r, "reservation-summary.page.tmpl.html", &models.TemplateData{
 		Data: data,
 	})
+}
+
+func (repository *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
+	roomID, err := strconv.Atoi(chi.URLParam(r, "id"))
+
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	reservation, ok := repository.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+
+	if !ok {
+		helpers.ServerError(w, errors.New("type assertion to string failed"))
+		return
+	}
+
+	reservation.RoomID = roomID
+	repository.App.Session.Put(r.Context(), "reservation", reservation)
+	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
 }
