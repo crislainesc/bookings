@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type RoomRestrictions struct {
+type RoomRestriction struct {
 	ID            int
 	StartDate     time.Time
 	EndDate       time.Time
@@ -12,6 +12,6 @@ type RoomRestrictions struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	Room          Room
-	Reservation   Reservations
-	Restriction   Restrictions
+	Reservation   Reservation
+	Restriction   Restriction
 }

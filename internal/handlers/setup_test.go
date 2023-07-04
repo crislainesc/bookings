@@ -64,7 +64,7 @@ func getRoutes() http.Handler {
 	repo := NewRepository(&app, db)
 	NewHandlers(repo)
 
-	render.NewTemplates(&app)
+	render.NewRenderer(&app)
 
 	mux := chi.NewRouter()
 

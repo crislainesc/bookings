@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type Restrictions struct {
+type Restriction struct {
 	ID              int
 	RestrictionName string
 	CreatedAt       time.Time
