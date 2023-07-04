@@ -29,8 +29,11 @@ type Repository struct {
 }
 
 type JsonResponse struct {
-	OK      bool   `json:"ok"`
-	Message string `json:"message"`
+	OK        bool   `json:"ok"`
+	Message   string `json:"message"`
+	RoomID    string `json:"room_id"`
+	StartDate string `json:"start_date"`
+	EndDate   string `json:"end_date"`
 }
 
 func NewRepository(app *config.AppConfig, db *driver.Database) *Repository {
@@ -233,9 +236,22 @@ func (repository *Repository) PostAvailability(w http.ResponseWriter, r *http.Re
 
 // AvailabilityJSON is the handler for the search availability
 func (repository *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
+	sd := r.Form.Get("start")
+	ed := r.Form.Get("end")
+
+	startDate, _ := time.Parse("2006-01-02", sd)
+	endDate, _ := time.Parse("2006-01-02", ed)
+
+	roomID, _ := strconv.Atoi(r.Form.Get("room_id"))
+
+	available, _ := repository.DB.SearchAvailabilityByDatesByRoomID(startDate, endDate, roomID)
+
 	resp := JsonResponse{
-		OK:      true,
-		Message: "Available!",
+		OK:        available,
+		Message:   "",
+		RoomID:    strconv.Itoa(roomID),
+		StartDate: sd,
+		EndDate:   ed,
 	}
 
 	out, err := json.MarshalIndent(resp, "", " ")

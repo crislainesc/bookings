@@ -58,11 +58,57 @@
                     </div>
                 </div>
             </div>
-        </form>
-        `;
+            </form>
+            `;
+
     attention.custom({
       title: 'Choose your dates',
       msg: html,
+      willOpen: () => {
+        const elem = document.getElementById('reservation-dates-modal')
+        new DateRangePicker(elem, {
+          format: 'yyyy-mm-dd',
+          showOnFocus: true,
+          minDate: new Date(),
+        })
+      },
+      didOpen: () => {
+        document.getElementById('start').removeAttribute('disabled')
+        document.getElementById('end').removeAttribute('disabled')
+      },
+      preConfirm: () => {
+        return [
+          document.getElementById('start').value,
+          document.getElementById('end').value,
+        ]
+      },
+      callback: function (result) {
+        console.log(result);
+
+        let form = document.getElementById("check-availability-form");
+        let formData = new FormData(form)
+        formData.append("csrf_token", "{{.CSRFToken}}")
+        formData.append("room_id", "1")
+
+        fetch('/search-availability-json',
+          { method: "POST", body: formData, }
+        )
+          .then(response => response.json())
+          .then(data => {
+            if (data.ok) {
+              attention.custom({
+                icon: 'success',
+                title: 'Room is available',
+                msg: `<a class="btn btn-success" href="/book-room?id=${data.room_id}&s=${data.start_date}&e=${data.end_date}" class="text-white">Book now</a>`,
+                showConfirmButton: false
+              })
+            } else {
+              attention.error({
+                msg: "No availability"
+              })
+            }
+          });
+      }
     });
   })
 </script>
