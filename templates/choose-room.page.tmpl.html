@@ -1,0 +1,24 @@
+{{template "base" . }}
+
+{{define "title"}}
+<title>About</title>
+{{end}}
+
+{{define "content"}}
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h1>Choose a Room</h1>
+
+      {{$rooms := index .Data "rooms"}}
+
+      {{range $rooms}}
+      <div class="badge bg-primary text-wrap" style="width: 6rem;">
+        {{.RoomName}}
+      </div>
+      <br />
+      {{end}}
+    </div>
+  </div>
+</div>
+{{end}}

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -17,7 +16,10 @@ import (
 	"github.com/crislainesc/bookings/internal/repository/dbrepo"
 )
 
-var Repo *Repository
+var (
+	Repo       *Repository
+	dateLayout = "2006-01-02"
+)
 
 type Repository struct {
 	App *config.AppConfig
@@ -72,13 +74,12 @@ func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Req
 
 	sd := r.Form.Get("start_date")
 	ed := r.Form.Get("end_date")
-	layout := "2006-01-02"
 
-	startDate, err := time.Parse(layout, sd)
+	startDate, err := time.Parse(dateLayout, sd)
 	if err != nil {
 		helpers.ServerError(w, err)
 	}
-	endDate, err := time.Parse(layout, ed)
+	endDate, err := time.Parse(dateLayout, ed)
 	if err != nil {
 		helpers.ServerError(w, err)
 	}
@@ -153,11 +154,46 @@ func (repository *Repository) Availability(w http.ResponseWriter, r *http.Reques
 
 // PostAvailability is the handler for the search availability
 func (repository *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
-	start := r.Form.Get("start")
-	end := r.Form.Get("end")
-	result := fmt.Sprintf("start date is %s and end date is %s", start, end)
+	sd := r.Form.Get("start")
+	ed := r.Form.Get("end")
 
-	w.Write([]byte(result))
+	startDate, err := time.Parse(dateLayout, sd)
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+	endDate, err := time.Parse(dateLayout, ed)
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+	rooms, err := repository.DB.SearchAvailabilityForAllRooms(startDate, endDate)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	for _, room := range rooms {
+		repository.App.InfoLog.Println("ROOM:", room.ID, room.RoomName)
+	}
+
+	if len(rooms) == 0 {
+		repository.App.Session.Put(r.Context(), "error", "No available rooms")
+		http.Redirect(w, r, "/search-availability", http.StatusSeeOther)
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["rooms"] = rooms
+
+	reservation := models.Reservation{
+		StartDate: startDate,
+		EndDate:   endDate,
+	}
+
+	repository.App.Session.Put(r.Context(), "reservation", reservation)
+
+	render.Template(w, r, "choose-room.page.tmpl.html", &models.TemplateData{
+		Data: data,
+	})
 }
 
 // AvailabilityJSON is the handler for the search availability

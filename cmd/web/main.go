@@ -12,6 +12,7 @@ import (
 	"github.com/crislainesc/bookings/internal/config"
 	"github.com/crislainesc/bookings/internal/driver"
 	"github.com/crislainesc/bookings/internal/handlers"
+	"github.com/crislainesc/bookings/internal/helpers"
 	"github.com/crislainesc/bookings/internal/models"
 	"github.com/crislainesc/bookings/internal/render"
 )
@@ -91,6 +92,7 @@ func run() (*driver.Database, error) {
 	app.UseCache = false
 
 	repository := handlers.NewRepository(&app, db)
+	helpers.NewHelpers(&app)
 	handlers.NewHandlers(repository)
 
 	render.NewRenderer(&app)
