@@ -4,5 +4,6 @@ import "github.com/crislainesc/bookings/internal/models"
 
 type DatabaseRepo interface {
 	AllUsers() bool
-	InsertReservation(res models.Reservation) error
+	InsertReservation(reservation models.Reservation) (int, error)
+	InsertRoomRestriction(restriction models.RoomRestriction) error
 }
