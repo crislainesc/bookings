@@ -10,6 +10,7 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/crislainesc/bookings/internal/config"
+	"github.com/crislainesc/bookings/internal/driver"
 	"github.com/crislainesc/bookings/internal/handlers"
 	"github.com/crislainesc/bookings/internal/models"
 	"github.com/crislainesc/bookings/internal/render"
@@ -28,11 +29,13 @@ var (
 
 // main is the main function
 func main() {
-	err := run()
+	db, err := run()
 
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	defer db.SQL.Close()
 
 	fmt.Printf("Starting application on port %s\n", portNumber)
 
@@ -48,7 +51,7 @@ func main() {
 
 }
 
-func run() error {
+func run() (*driver.Database, error) {
 	gob.Register(models.Reservation{})
 
 	// change this to true when in production
@@ -68,18 +71,25 @@ func run() error {
 
 	app.Session = session
 
+	log.Println("Connecting to database...")
+	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=bookings user=postgres password=")
+	if err != nil {
+		log.Fatal("Cannot connect to database! Dying...")
+	}
+	log.Println("Connected to database!")
+
 	tcache, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("cannot create template cache")
-		return err
+		return nil, err
 	}
 
 	app.TemplateCache = tcache
 	app.UseCache = false
 
-	repository := handlers.NewRepository(&app)
+	repository := handlers.NewRepository(&app, db)
 	handlers.NewHandlers(repository)
 
 	render.NewTemplates(&app)
-	return nil
+	return db, nil
 }
