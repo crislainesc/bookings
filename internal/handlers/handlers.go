@@ -137,6 +137,8 @@ func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Req
 		RoomID:    roomID,
 	}
 
+	repository.App.Session.Put(r.Context(), "reservation", reservation)
+
 	form := forms.New(r.PostForm)
 
 	form.Required("first_name", "last_name", "email")
@@ -175,6 +177,15 @@ func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Req
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
+
+	// send notifications
+	msg := models.MailData{
+		To:      reservation.Email,
+		From:    "go_reservation@email.com",
+		Subject: "Reservation successfully",
+		Content: "<p>Hello, your reservation is completed</p>",
+	}
+	repository.App.MailChan <- msg
 
 	repository.App.Session.Put(r.Context(), "reservation", reservation)
 	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
@@ -242,7 +253,6 @@ func (repository *Repository) PostAvailability(w http.ResponseWriter, r *http.Re
 		StartDate: startDate,
 		EndDate:   endDate,
 	}
-
 	repository.App.Session.Put(r.Context(), "reservation", res)
 
 	render.Template(w, r, "choose-room.page.tmpl", &models.TemplateData{
