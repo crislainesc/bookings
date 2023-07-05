@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/crislainesc/bookings/internal/models"
+	"github.com/pkg/errors"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (repository *postgresDBRepo) AllUsers() bool {
@@ -173,4 +175,94 @@ func (repository *postgresDBRepo) GetRoomByID(roomID int) (models.Room, error) {
 	}
 
 	return room, nil
+}
+
+func (repository *postgresDBRepo) GetUserByID(userID int) (models.User, error) {
+	context, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	defer cancel()
+
+	query := `
+		SELECT id, first_name, last_name, email, password, access_level, created_at, updated_at
+		FROM users
+		WHERE id = $1
+	`
+
+	var user models.User
+
+	row := repository.DB.QueryRowContext(context, query, userID)
+
+	err := row.Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.Password,
+		&user.AccessLevel,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
+func (repository *postgresDBRepo) UpdateUser(user models.User) error {
+	context, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	defer cancel()
+
+	query := `
+		UPDATE users
+		SET first_name = $1, last_name = $2, email = $3, access_level = $4, updated_at = $5
+	`
+
+	_, err := repository.DB.ExecContext(context, query,
+		user.FirstName,
+		user.LastName,
+		user.Email,
+		user.AccessLevel,
+		time.Now(),
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *postgresDBRepo) Authenticate(email, testPassword string) (int, string, error) {
+	context, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	defer cancel()
+
+	var id int
+	var hashedPassword string
+
+	query := `
+		SELECT id, password
+		FROM users
+		WHERE email = $1
+	`
+
+	row := repository.DB.QueryRowContext(context, query, email)
+	err := row.Scan(&id, &hashedPassword)
+
+	if err != nil {
+		return 0, "", err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(testPassword))
+
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		return 0, "", errors.New("incorrect password")
+	} else if err != nil {
+		return 0, "", err
+	}
+
+	return id, hashedPassword, nil
 }
