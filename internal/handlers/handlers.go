@@ -62,14 +62,16 @@ func (repository *Repository) Reservation(w http.ResponseWriter, r *http.Request
 	reservation, ok := repository.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 
 	if !ok {
-		helpers.ServerError(w, errors.New("type assertion to string failed"))
+		repository.App.Session.Put(r.Context(), "error", "can't get reservation from session")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 	room, err := repository.DB.GetRoomByID(reservation.RoomID)
 
 	if err != nil {
-		helpers.ServerError(w, err)
+		repository.App.Session.Put(r.Context(), "error", "can't find room")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -80,8 +82,8 @@ func (repository *Repository) Reservation(w http.ResponseWriter, r *http.Request
 	data := make(map[string]interface{})
 	data["reservation"] = reservation
 
-	sd := reservation.StartDate.Format("2006-01-02")
-	ed := reservation.EndDate.Format("2006-01-02")
+	sd := reservation.StartDate.Format(dateLayout)
+	ed := reservation.EndDate.Format(dateLayout)
 
 	stringMap := make(map[string]string)
 	stringMap["start_date"] = sd
@@ -99,13 +101,16 @@ func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Req
 	reservation, ok := repository.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 
 	if !ok {
-		helpers.ServerError(w, errors.New("type assertion to string failed"))
+		repository.App.Session.Put(r.Context(), "error", "can't get reservation from session")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 	err := r.ParseForm()
 	if err != nil {
-		helpers.ServerError(w, err)
+
+		repository.App.Session.Put(r.Context(), "error", "can't parse form")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -114,16 +119,23 @@ func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Req
 
 	startDate, err := time.Parse(dateLayout, sd)
 	if err != nil {
-		helpers.ServerError(w, err)
+		repository.App.Session.Put(r.Context(), "error", "can't parse start date")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
 	}
 	endDate, err := time.Parse(dateLayout, ed)
 	if err != nil {
-		helpers.ServerError(w, err)
+		repository.App.Session.Put(r.Context(), "error", "can't parse end date")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
 	}
 
 	roomID, err := strconv.Atoi(r.Form.Get("room_id"))
+
 	if err != nil {
-		helpers.ServerError(w, err)
+		repository.App.Session.Put(r.Context(), "error", "can't find room")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
 	}
 
 	reservation.FirstName = r.Form.Get("first_name")
@@ -143,6 +155,7 @@ func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Req
 	if !form.Valid() {
 		data := make(map[string]interface{})
 		data["reservation"] = reservation
+		http.Error(w, "Invalid data", http.StatusSeeOther)
 		render.Template(w, r, "make-reservation.page.tmpl.html", &models.TemplateData{
 			Form: form,
 			Data: data,
@@ -152,7 +165,9 @@ func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Req
 
 	newReservationID, err := repository.DB.InsertReservation(reservation)
 	if err != nil {
-		helpers.ServerError(w, err)
+		repository.App.Session.Put(r.Context(), "error", "can't create new reservation")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
 	}
 
 	repository.App.Session.Put(r.Context(), "reservation", reservation)
@@ -167,7 +182,9 @@ func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Req
 
 	err = repository.DB.InsertRoomRestriction(restriction)
 	if err != nil {
-		helpers.ServerError(w, err)
+		repository.App.Session.Put(r.Context(), "error", "can't finish reservation")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
 	}
 
 	repository.App.Session.Put(r.Context(), "reservation", reservation)
@@ -238,8 +255,8 @@ func (repository *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Re
 	sd := r.Form.Get("start")
 	ed := r.Form.Get("end")
 
-	startDate, _ := time.Parse("2006-01-02", sd)
-	endDate, _ := time.Parse("2006-01-02", ed)
+	startDate, _ := time.Parse(dateLayout, sd)
+	endDate, _ := time.Parse(dateLayout, ed)
 
 	roomID, _ := strconv.Atoi(r.Form.Get("room_id"))
 
@@ -282,8 +299,8 @@ func (repository *Repository) ReservationSummary(w http.ResponseWriter, r *http.
 	data := make(map[string]interface{})
 	data["reservation"] = reservation
 
-	sd := reservation.StartDate.Format("2006-01-02")
-	ed := reservation.EndDate.Format("2006-01-02")
+	sd := reservation.StartDate.Format(dateLayout)
+	ed := reservation.EndDate.Format(dateLayout)
 
 	stringMap := make(map[string]string)
 	stringMap["start_date"] = sd
@@ -320,8 +337,8 @@ func (repository *Repository) BookRoom(w http.ResponseWriter, r *http.Request) {
 	sd := r.URL.Query().Get("s")
 	ed := r.URL.Query().Get("e")
 
-	startDate, _ := time.Parse("2006-01-02", sd)
-	endDate, _ := time.Parse("2006-01-02", ed)
+	startDate, _ := time.Parse(dateLayout, sd)
+	endDate, _ := time.Parse(dateLayout, ed)
 
 	room, err := repository.DB.GetRoomByID(roomID)
 
