@@ -67,7 +67,6 @@ func (repository *Repository) Reservation(w http.ResponseWriter, r *http.Request
 	}
 
 	room, err := repository.DB.GetRoomByID(reservation.RoomID)
-	repository.App.InfoLog.Println(room.RoomName)
 
 	if err != nil {
 		helpers.ServerError(w, err)
@@ -312,6 +311,32 @@ func (repository *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request)
 	}
 
 	reservation.RoomID = roomID
+	repository.App.Session.Put(r.Context(), "reservation", reservation)
+	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
+}
+
+func (repository *Repository) BookRoom(w http.ResponseWriter, r *http.Request) {
+	roomID, _ := strconv.Atoi(r.URL.Query().Get("id"))
+	sd := r.URL.Query().Get("s")
+	ed := r.URL.Query().Get("e")
+
+	startDate, _ := time.Parse("2006-01-02", sd)
+	endDate, _ := time.Parse("2006-01-02", ed)
+
+	room, err := repository.DB.GetRoomByID(roomID)
+
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	var reservation models.Reservation
+
+	reservation.Room.RoomName = room.RoomName
+	reservation.RoomID = roomID
+	reservation.StartDate = startDate
+	reservation.EndDate = endDate
+
 	repository.App.Session.Put(r.Context(), "reservation", reservation)
 	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
 }
