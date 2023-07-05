@@ -397,9 +397,42 @@ func (repository *Repository) BookRoom(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
 }
 
-// ShowLogin is the handler for the search login page
+// ShowLogin is the handler for the login page
 func (repository *Repository) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "login.page.tmpl.html", &models.TemplateData{
 		Form: forms.New(nil),
 	})
+}
+
+// PostLogin is the handler for the login
+func (repository *Repository) PostLogin(w http.ResponseWriter, r *http.Request) {
+	_ = repository.App.Session.RenewToken(r.Context())
+
+	err := r.ParseForm()
+	if err != nil {
+		repository.App.Session.Put(r.Context(), "error", "can't parse form!")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	email := r.Form.Get("email")
+	password := r.Form.Get("password")
+	form := forms.New(r.PostForm)
+	form.Required("email", "password")
+
+	if !form.Valid() {
+		// TODO: take user back to page
+	}
+
+	id, _, err := repository.DB.Authenticate(email, password)
+
+	if err != nil {
+		repository.App.Session.Put(r.Context(), "error", "Invalid login credentials")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	repository.App.Session.Put(r.Context(), "user_id", id)
+	repository.App.Session.Put(r.Context(), "flash", "Logged in successfully")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
