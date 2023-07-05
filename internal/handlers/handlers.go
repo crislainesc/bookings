@@ -396,3 +396,10 @@ func (repository *Repository) BookRoom(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
 }
+
+// ShowLogin is the handler for the search login page
+func (repository *Repository) ShowLogin(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "login.page.tmpl.html", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
