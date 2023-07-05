@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 
@@ -37,7 +37,7 @@ func sendMsg(m models.MailData) {
 	if m.Template == "" {
 		email.SetBody(mail.TextHTML, m.Content)
 	} else {
-		data, err := ioutil.ReadFile("../../templates/email/" + m.Template)
+		data, err := os.ReadFile("../../templates/email/" + m.Template)
 
 		if err != nil {
 			app.ErrorLog.Println(err)
