@@ -180,10 +180,11 @@ func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Req
 
 	// send notifications
 	msg := models.MailData{
-		To:      reservation.Email,
-		From:    "go_reservation@email.com",
-		Subject: "Reservation successfully",
-		Content: "<p>Hello, your reservation is completed</p>",
+		To:       reservation.Email,
+		From:     "go_reservation@email.com",
+		Subject:  "Reservation successfully",
+		Content:  "<p>Hello, your reservation is completed</p>",
+		Template: "base.html",
 	}
 	repository.App.MailChan <- msg
 

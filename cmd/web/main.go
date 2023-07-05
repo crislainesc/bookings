@@ -41,15 +41,6 @@ func main() {
 
 	listenForMail()
 
-	msg := models.MailData{
-		To:      "sam@smith.com",
-		From:    "me@here.com",
-		Subject: "Welcome",
-		Content: "<p>Hello</p>",
-	}
-
-	app.MailChan <- msg
-
 	if err != nil {
 		log.Println(err)
 	}
