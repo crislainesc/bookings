@@ -148,7 +148,6 @@ func (repository *Repository) PostReservation(w http.ResponseWriter, r *http.Req
 	if !form.Valid() {
 		data := make(map[string]interface{})
 		data["reservation"] = reservation
-		http.Error(w, "Invalid data", http.StatusSeeOther)
 		render.Template(w, r, "make-reservation.page.tmpl.html", &models.TemplateData{
 			Form: form,
 			Data: data,
@@ -256,7 +255,7 @@ func (repository *Repository) PostAvailability(w http.ResponseWriter, r *http.Re
 	}
 	repository.App.Session.Put(r.Context(), "reservation", res)
 
-	render.Template(w, r, "choose-room.page.tmpl", &models.TemplateData{
+	render.Template(w, r, "choose-room.page.tmpl.html", &models.TemplateData{
 		Data: data,
 	})
 }
@@ -338,7 +337,7 @@ func (repository *Repository) ReservationSummary(w http.ResponseWriter, r *http.
 	stringMap["start_date"] = sd
 	stringMap["end_date"] = ed
 
-	render.Template(w, r, "reservation-summary.page.tmpl", &models.TemplateData{
+	render.Template(w, r, "reservation-summary.page.tmpl.html", &models.TemplateData{
 		Data:      data,
 		StringMap: stringMap,
 	})
@@ -422,14 +421,14 @@ func (repository *Repository) PostLogin(w http.ResponseWriter, r *http.Request) 
 	form.IsEmail("email")
 
 	if !form.Valid() {
-		render.Template(w, r, "login.page.html", &models.TemplateData{Form: form})
+		render.Template(w, r, "login.page.tmpl.html", &models.TemplateData{Form: form})
+		return
 	}
-
 	id, _, err := repository.DB.Authenticate(email, password)
 
 	if err != nil {
 		repository.App.Session.Put(r.Context(), "error", "Invalid login credentials")
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 		return
 	}
 
