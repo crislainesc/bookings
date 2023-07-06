@@ -436,3 +436,14 @@ func (repository *Repository) PostLogin(w http.ResponseWriter, r *http.Request) 
 	repository.App.Session.Put(r.Context(), "flash", "Logged in successfully")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+func (repository *Repository) Logout(w http.ResponseWriter, r *http.Request) {
+	repository.App.Session.Destroy(r.Context())
+	repository.App.Session.RenewToken(r.Context())
+
+	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+}
+
+func (repository *Repository) AdminDashboard(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "admin-dashboard.page.tmpl.html", &models.TemplateData{})
+}
