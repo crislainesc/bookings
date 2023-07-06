@@ -7,13 +7,16 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+	"time"
 
 	"github.com/crislainesc/bookings/internal/config"
 	"github.com/crislainesc/bookings/internal/models"
 	"github.com/justinas/nosurf"
 )
 
-var functions = template.FuncMap{}
+var functions = template.FuncMap{
+	"formatDate": FormatDate,
+}
 
 var app *config.AppConfig
 var templatesPath = "../../templates/"
@@ -21,6 +24,10 @@ var templatesPath = "../../templates/"
 // NewRenderer  sets the config for the template package
 func NewRenderer(appConfig *config.AppConfig) {
 	app = appConfig
+}
+
+func FormatDate(d time.Time) string {
+	return d.Format("2006-01-02")
 }
 
 func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
