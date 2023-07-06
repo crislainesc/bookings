@@ -16,6 +16,7 @@ import (
 	"github.com/crislainesc/bookings/internal/render"
 	"github.com/crislainesc/bookings/internal/repository"
 	"github.com/crislainesc/bookings/internal/repository/dbrepo"
+	"github.com/go-chi/chi"
 )
 
 var (
@@ -559,5 +560,18 @@ func (repository *Repository) AdminPostShowReservation(w http.ResponseWriter, r 
 	}
 
 	repository.App.Session.Put(r.Context(), "flash", "Changes Saved")
+	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+}
+
+func (repository *Repository) AdminProcessReservation(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	src := chi.URLParam(r, "src")
+
+	err := repository.DB.UpdateProcessedForReservation(id, 1)
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
+	repository.App.Session.Put(r.Context(), "flash", "Reservation marked as Processed!")
 	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
 }

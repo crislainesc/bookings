@@ -7,6 +7,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>Administration</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.css">
     <!-- plugins:css -->
     <link rel="stylesheet" href="/static/admin/vendors/ti-icons/css/themify-icons.css" />
     <link rel="stylesheet" href="/static/admin/vendors/base/vendor.bundle.base.css" />
@@ -136,6 +138,27 @@
     <!-- Custom js for this page-->
     <script src="/static/admin/js/dashboard.js"></script>
     <!-- End custom js for this page-->
+    <script src="https://unpkg.com/notie"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.js"></script>
+    <script src="/static/js/app.js"></script>
+
+    {{with .Error}}
+    <script>
+        notify("{{.}}", "error");
+    </script>
+    {{end}}
+
+    {{with .Flash}}
+    <script>
+        notify("{{.}}", "success");
+    </script>
+    {{end}}
+
+    {{with .Warning}}
+    <script>
+        notify("{{.}}", "warning");
+    </script>
+    {{end}}
 
     {{block "js" . }} {{end}}
 </body>

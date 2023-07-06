@@ -96,7 +96,7 @@ function Prompt() {
       icon: icon,
       title: title,
       html: msg,
-      backdrop: false,
+      backdrop: true,
       focusConfirm: false,
       showConfirmButton: showConfirmButton,
       showCancelButton: true,
@@ -125,7 +125,7 @@ function Prompt() {
           c.callback(false)
         }
       } else {
-        c.callback(false)
+        c.callback(true)
       }
     }
   }
