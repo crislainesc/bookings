@@ -419,9 +419,10 @@ func (repository *Repository) PostLogin(w http.ResponseWriter, r *http.Request) 
 	password := r.Form.Get("password")
 	form := forms.New(r.PostForm)
 	form.Required("email", "password")
+	form.IsEmail("email")
 
 	if !form.Valid() {
-		// TODO: take user back to page
+		render.Template(w, r, "login.page.html", &models.TemplateData{Form: form})
 	}
 
 	id, _, err := repository.DB.Authenticate(email, password)
