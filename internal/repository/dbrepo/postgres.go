@@ -400,6 +400,7 @@ func (repository *postgresDBRepo) UpdateReservation(reservation models.Reservati
 	query := `
 		UPDATE reservations
 		SET first_name = $1, last_name = $2, email = $3, phone = $4, updated_at = $5
+		WHERE id = $6
 	`
 
 	_, err := repository.DB.ExecContext(context, query,
@@ -408,6 +409,7 @@ func (repository *postgresDBRepo) UpdateReservation(reservation models.Reservati
 		reservation.Email,
 		reservation.Phone,
 		time.Now(),
+		reservation.ID,
 	)
 
 	if err != nil {
