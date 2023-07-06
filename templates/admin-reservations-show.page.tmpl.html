@@ -65,10 +65,24 @@ Reservation
     </div>
 
     <hr>
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a href="/admin/reservations-{{$src}}" class="btn btn-warning">Cancel</a>
-    <a href="#!" class="btn btn-info" onclick='processRes("{{$res.ID}}")'>Mark as Processed</a>
-  </form>
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        {{if eq $src "cal"}}
+        <a href="#!" onclick="window.history.go(-1)" class="btn btn-warning">Cancel</a>
+        {{else}}
+        <a href="/admin/reservations-{{$src}}" class="btn btn-warning">Cancel</a>
+        {{end}}
+        {{if eq $res.Processed 0}}
+        <a href="#!" class="btn btn-info" onclick='processRes("{{$res.ID}}")'>Mark as Processed</a>
+        {{end}}
+      </div>
+      <div>
+        <a href="#!" class="btn btn-danger" onclick='deleteRes("{{$res.ID}}")'>Delete</a>
+      </div>
+    </div>
+</div>
+</form>
 </div>
 {{end}}
 
@@ -83,6 +97,18 @@ Reservation
         console.log(result);
         if (result !== false) {
           window.location.href = "/admin/process-reservation/{{$src}}/" + id
+        }
+      }
+    })
+  }
+
+  function deleteRes(id) {
+    attention.custom({
+      icon: 'warning',
+      msg: 'Are you sure?',
+      callback: function (result) {
+        if (result !== false) {
+          window.location.href = "/admin/delete-reservation/{{$src}}/" + id
         }
       }
     })
