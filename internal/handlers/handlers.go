@@ -10,6 +10,7 @@ import (
 	"github.com/crislainesc/bookings/internal/config"
 	"github.com/crislainesc/bookings/internal/driver"
 	"github.com/crislainesc/bookings/internal/forms"
+	"github.com/crislainesc/bookings/internal/helpers"
 	"github.com/crislainesc/bookings/internal/models"
 	"github.com/crislainesc/bookings/internal/render"
 	"github.com/crislainesc/bookings/internal/repository"
@@ -327,6 +328,14 @@ func (repository *Repository) ReservationSummary(w http.ResponseWriter, r *http.
 	}
 
 	repository.App.Session.Remove(r.Context(), "reservation")
+	room, err := repository.DB.GetRoomByID(reservation.RoomID)
+	if err != nil {
+		repository.App.Session.Put(r.Context(), "error", "Can't get room name")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	reservation.Room.RoomName = room.RoomName
 
 	data := make(map[string]interface{})
 	data["reservation"] = reservation
@@ -453,7 +462,16 @@ func (repository *Repository) AdminNewReservation(w http.ResponseWriter, r *http
 }
 
 func (repository *Repository) AdminAllReservations(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "admin-all-reservations.page.tmpl.html", &models.TemplateData{})
+	reservations, err := repository.DB.GetAllReservations()
+
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
+	data := make(map[string]interface{})
+	data["reservations"] = reservations
+
+	render.Template(w, r, "admin-all-reservations.page.tmpl.html", &models.TemplateData{Data: data})
 }
 
 func (repository *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Request) {
