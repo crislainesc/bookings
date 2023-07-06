@@ -1,7 +1,8 @@
 {{template "admin" .}}
 
+
 {{define "page-title"}}
-New Reservation
+New Reservations
 {{end}}
 
 {{define "css"}}
@@ -35,8 +36,8 @@ New Reservation
                 <td>{{formatDate .StartDate}}</td>
                 <td>{{formatDate .EndDate}}</td>
             </tr>
+            {{end}}
         </tbody>
-        {{end}}
     </table>
 </div>
 {{end}}
