@@ -10,8 +10,8 @@
     <div class="col">
       <h1>Login</h1>
 
-      <form method="post" action="" class="" novalidate>
-        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+      <form action="/user/login" method="post" novalidate>
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         <div class="form-group mt-3">
           <label for="email">Email:</label>
           {{with .Form}}
@@ -32,7 +32,7 @@
 
         <hr />
 
-        <input type="submit" class="btn btn-primary" value="Login">
+        <input type="submit" class="btn btn-primary" value="Submit">
       </form>
     </div>
   </div>
