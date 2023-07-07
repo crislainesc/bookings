@@ -8,17 +8,8 @@ body {
   overflow-x: hidden;
 }
 
-.my-footer {
-  height: 5em;
-  background-color: #163b65;
-  padding: 1em;
-  margin-top: 1.5em;
-  color: #ffffff;
-  font-size: 80%;
-}
-
 .content {
-  min-height: calc(100vh - 8.5em);
+  min-height: calc(100vh - 8em);
 }
 
 .notie-container {
