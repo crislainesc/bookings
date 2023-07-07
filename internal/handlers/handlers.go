@@ -585,6 +585,12 @@ func (repository *Repository) AdminShowReservation(w http.ResponseWriter, r *htt
 	stringMap := make(map[string]string)
 
 	stringMap["src"] = src
+	year := r.URL.Query().Get("y")
+	month := r.URL.Query().Get("m")
+
+	stringMap["month"] = month
+	stringMap["year"] = year
+
 	// get reservation from the database
 	res, err := repository.DB.GetReservationByID(id)
 	if err != nil {
@@ -639,8 +645,16 @@ func (repository *Repository) AdminPostShowReservation(w http.ResponseWriter, r 
 		return
 	}
 
+	month := r.Form.Get("month")
+	year := r.Form.Get("year")
+
+	if year == "" {
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-calendar?y=%s&m=%s", year, month), http.StatusSeeOther)
+	}
+
 	repository.App.Session.Put(r.Context(), "flash", "Changes Saved")
-	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
 }
 
 func (repository *Repository) AdminProcessReservation(w http.ResponseWriter, r *http.Request) {
@@ -651,9 +665,15 @@ func (repository *Repository) AdminProcessReservation(w http.ResponseWriter, r *
 	if err != nil {
 		helpers.ServerError(w, err)
 	}
+	year := r.URL.Query().Get("y")
+	month := r.URL.Query().Get("m")
 
 	repository.App.Session.Put(r.Context(), "flash", "Reservation marked as Processed!")
-	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+	if year == "" {
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-calendar?y=%s&m=%s", year, month), http.StatusSeeOther)
+	}
 }
 
 func (repository *Repository) AdminDeleteReservation(w http.ResponseWriter, r *http.Request) {
@@ -662,8 +682,16 @@ func (repository *Repository) AdminDeleteReservation(w http.ResponseWriter, r *h
 
 	_ = repository.DB.DeleteReservation(id)
 
+	year := r.URL.Query().Get("y")
+	month := r.URL.Query().Get("m")
+
 	repository.App.Session.Put(r.Context(), "flash", "Reservation Deleted!")
-	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+
+	if year == "" {
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-calendar?y=%s&m=%s", year, month), http.StatusSeeOther)
+	}
 }
 
 func (repository *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *http.Request) {
@@ -709,7 +737,7 @@ func (repository *Repository) AdminPostReservationsCalendar(w http.ResponseWrite
 	}
 
 	// now handle new blocks
-	for name, _ := range r.PostForm {
+	for name := range r.PostForm {
 		if strings.HasPrefix(name, "add_block") {
 			exploded := strings.Split(name, "_")
 			roomID, _ := strconv.Atoi(exploded[2])
