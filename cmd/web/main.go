@@ -49,7 +49,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:    portNumber,
-		Handler: routes(&app),
+		Handler: routes(),
 	}
 
 	err = server.ListenAndServe()
@@ -64,6 +64,7 @@ func run() (*driver.Database, error) {
 	gob.Register(models.User{})
 	gob.Register(models.Room{})
 	gob.Register(models.RoomRestriction{})
+	gob.Register(map[string]int{})
 
 	mailChan := make(chan models.MailData)
 	app.MailChan = mailChan
@@ -94,7 +95,7 @@ func run() (*driver.Database, error) {
 
 	tcache, err := render.CreateTemplateCache()
 	if err != nil {
-		log.Fatal("cannot create template cache")
+		log.Fatal("cannot create template cache", err.Error())
 		return nil, err
 	}
 
